@@ -1,0 +1,108 @@
+3. Write an android application to demonstrate read and write on internal files.
+
+
+============= Manifest ================
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.p3">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.P3">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
+
+
+
+========= MainActivity ===============
+
+
+
+package com.example.p3;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Context;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class MainActivity extends AppCompatActivity {
+
+    EditText e1,e2;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        e1 = findViewById(R.id.file1);
+        e2 = findViewById(R.id.text1);
+
+    }
+
+
+
+    public void btnsave(View view) {
+        String filename = e1.getText().toString();
+        String textname = e2.getText().toString();
+
+        FileOutputStream fos;
+        try{
+            fos = openFileOutput(filename, Context.MODE_PRIVATE);
+            fos.write(textname.getBytes());
+            fos.close();
+            Toast.makeText(this, filename+" Stored", Toast.LENGTH_SHORT).show();
+        }catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void btnread(View view) {
+        String filename = e1.getText().toString();
+        StringBuffer stringBuffer = new StringBuffer();
+        try {
+            BufferedReader inputReader = new BufferedReader(new InputStreamReader(openFileInput(filename)));
+            String inputString;
+            while ((inputString = inputReader.readLine()) != null){
+                stringBuffer.append(inputString + "\n");
+            }
+        }catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        Toast.makeText(this, stringBuffer.toString(), Toast.LENGTH_SHORT).show();
+    }
+}
+
+
+
+
+
+
+

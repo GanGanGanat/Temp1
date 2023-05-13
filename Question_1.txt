@@ -1,0 +1,120 @@
+
+1. Create sample application with login module.(Check with static username and password) . On successful 
+login, go to next screen and display welcome message with user name. And on failing login, alert user using 
+Toast. 
+
+========================================================================
+MianActivity_1
+========================================================================
+
+package com.example.android_quetion1;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+public class MainActivity extends AppCompatActivity {
+
+    Button b1;
+    EditText userName,password;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        b1 = findViewById(R.id.login);
+        userName = findViewById(R.id.userName);
+        password = findViewById(R.id.passWord);
+    }
+
+    public void login(View view) {
+        String s1 = "Welcome "+userName.getText().toString();
+        String user = userName.getText().toString();
+        String passwor = password.getText().toString();
+
+        if(user.equals("Yogesh") && passwor.equals("Yogesh123")){
+            Intent intent = new Intent(getApplicationContext(),MainActivity2.class);
+            intent.putExtra("uname",s1);
+            startActivity(intent);
+        }else{
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setTitle("Alert_Box...");
+            builder.setMessage("Please Enter Valid UserName And Password");
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Toast.makeText(getApplicationContext(),"You Pressed Ok ",Toast.LENGTH_SHORT).show();
+                    userName.setText("");
+                    password.setText("");
+                }
+            });
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
+        }
+
+    }
+}
+
+========================================================================
+MianActivity_2
+========================================================================
+
+package com.example.android_quetion1;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.widget.TextView;
+
+public class MainActivity2 extends AppCompatActivity {
+    TextView txtmsg;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main2);
+        txtmsg = findViewById(R.id.txtmsg);
+        Intent intent = getIntent();
+
+        String user = intent.getStringExtra("uname");
+        txtmsg.setText(user);
+    }
+}
+
+===============================================================
+Android Manifest.xml file
+===============================================================
+
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.android_quetion1">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Android_Quetion1">
+        <activity
+            android:name=".MainActivity2"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

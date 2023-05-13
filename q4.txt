@@ -1,0 +1,285 @@
+4. Create a Railway reservation utility for Android device which will accept detail such as train name, 
+reservation date, time, passenger name, Number of ticket, class of ticket (i.e. 1A,2A,3A) etc… 
+Make use of proper UI: i.e. for name, address use edit text, for train name use single-choice list dialog, for 
+reservation date use date picker dialog, for reservation time use time picker dialog, for passenger name and 
+number of ticket use EditText, Number of ticket only accepts numeric value, for class use radio button. 
+Perform following task: 
+1. Application have a next button, On click of next button entered detail should display to the next activity. 
+(Hints: pass all data to next activity using intent) 
+2. While closing (terminating) the application, data filled within various input controls must be saved on 
+SharedPreferences and show that information in input controls when the application loads again.
+
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.que4">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Que4">
+        <activity
+            android:name=".TicketDetail"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
+
+
+
+=======================================================================
+
+
+package com.example.que4;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.Spinner;
+import android.widget.TimePicker;
+
+import java.util.Calendar;
+
+public class MainActivity extends AppCompatActivity {
+     EditText editdate,editTime,personName,add,numTicket;
+     String date,ampm,timeCur,rdBtnChecked,listval;
+     String name,addr,number;
+     RadioGroup radioGroup;
+     String[] trainname = {"Tejas Express","Maharaja Express","Rajdhani Express"};
+     Spinner spinnertrain;
+     TimePickerDialog timePickerDialog;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        editdate = findViewById(R.id.txtdate);
+        editTime = findViewById(R.id.txttime);
+        personName = findViewById(R.id.txtname);
+        add = findViewById(R.id.txtadd);
+        numTicket = findViewById(R.id.txtTicketNumber);
+
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(calendar.YEAR);
+        int month = calendar.get(calendar.MONTH);
+        int day = calendar.get(calendar.DAY_OF_MONTH);
+
+        editdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DatePickerDialog datePickerDialog = new DatePickerDialog(MainActivity.this, new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int month, int day) {
+                        month = month + 1;
+                        date = day +" / "+month+" / "+year;
+                        editdate.setText(""+date);
+                    }
+                },year,month,day);
+                datePickerDialog.show();
+            }
+        });
+
+        editTime.setOnClickListener(new View.OnClickListener(){
+            private int hourOfDay=0;
+            private  int miniute=0;
+
+            public void onClick(View v){
+                boolean is24HourView=false;
+                timePickerDialog = new TimePickerDialog(MainActivity.this, new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int miniute) {
+                        if (hourOfDay >= 12) {
+                            ampm = "PM";
+                        } else {
+                            ampm = "AM";
+                        }
+                        timeCur = hourOfDay + miniute + ampm;
+                        editTime.setText(timeCur);
+                    }
+                }, hourOfDay,miniute, false);
+                timePickerDialog.show();
+            }
+        });
+
+        radioGroup = findViewById(R.id.radioGroup);
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int chckedId) {
+                switch (chckedId){
+                    case R.id.radio1a:
+                        rdBtnChecked = "1A";
+                        break;
+                    case R.id.radio2a:
+                        rdBtnChecked = "2A";
+                        break;
+                    case R.id.radio3a:
+                        rdBtnChecked = "3A";
+                        break;
+                }
+            }
+        });
+
+        spinnertrain=findViewById(R.id.spinner);
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item,trainname);
+        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnertrain.setAdapter(arrayAdapter);
+
+        spinnertrain.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
+                listval = adapterView.getItemAtPosition(position).toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+    }
+
+    public void BookTicket(View view) {
+        name=personName.getText().toString();
+        addr=add.getText().toString();
+        number=numTicket.getText().toString();
+
+        Intent sentData = new Intent(getApplicationContext(),TicketDetail.class);
+        sentData.putExtra("pname",name);
+        sentData.putExtra("add",addr);
+        sentData.putExtra("time",timeCur);
+        sentData.putExtra("date",date);
+        sentData.putExtra("number",number);
+        sentData.putExtra("rdval",rdBtnChecked);
+        sentData.putExtra("list",listval);
+        startActivity(sentData);
+    }
+
+    protected  void onStart() {
+        super.onStart();
+        RadioButton r1 = findViewById(R.id.radio1a);
+        RadioButton r2 = findViewById(R.id.radio2a);
+        RadioButton r3 = findViewById(R.id.radio3a);
+        SharedPreferences getPref;
+        getPref = getSharedPreferences("demo", MODE_PRIVATE);
+        personName.setText(getPref.getString("personname", ""));
+        add.setText(getPref.getString("add", ""));
+        editdate.setText(getPref.getString("editdate", ""));
+        editTime.setText(getPref.getString("edittime", ""));
+        numTicket.setText(getPref.getString("numTicket", ""));
+
+        if ("1A".equals(getPref.getString("rdBtnChecked", ""))) {
+            r1.setChecked(true);
+        } else if ("2A".equals(getPref.getString("rdBtnChecked", ""))) {
+            r2.setChecked(true);
+        } else if ("3A".equals(getPref.getString("rdBtnChecked", ""))) {
+            r3.setChecked(true);
+        }
+        super.onStart();
+    }
+
+    protected void onStop(){
+        SharedPreferences putref;
+        SharedPreferences.Editor editor;
+        putref = getSharedPreferences("demo",MODE_PRIVATE);
+        editor = putref.edit();
+        String namePerson = personName.getText().toString();
+        String date = editdate.getText().toString();
+        String address = add.getText().toString();
+        String time = editTime.getText().toString();
+        String notic = numTicket.getText().toString();
+        editor.putString("personname",namePerson);
+        editor.putString("add",address);
+        editor.putString("editdate",date);
+        editor.putString("edittime",time);
+        editor.putString("numTicket",notic);
+        editor.putString("rdBtnChecked",rdBtnChecked);
+        editor.apply();
+        super.onStop();
+    }
+}
+
+
+
+
+=====================================================================
+
+
+
+
+package com.example.que4;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+public class TicketDetail extends AppCompatActivity {
+    private TextView showname,showadd,showtrain,showdate,showtime,showticket,showclass;
+    Button button;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+         button = findViewById(R.id.btn1);
+        setContentView(R.layout.activity_ticket_detail);
+
+        showname = findViewById(R.id.personshow);
+        showadd = findViewById(R.id.personadd);
+        showtrain = findViewById(R.id.trainname);
+        showdate = findViewById(R.id.traindate);
+        showtime = findViewById(R.id.traintime);
+        showticket = findViewById(R.id.ticketno);
+        showclass = findViewById(R.id.classno);
+
+        Intent getData = getIntent();
+
+        showname.setText(getData.getStringExtra("pname"));
+        showadd.setText(getData.getStringExtra("add"));
+        showtrain.setText(getData.getStringExtra("list"));
+        showdate.setText(getData.getStringExtra("date"));
+        showtime.setText(getData.getStringExtra("time"));
+        showticket.setText(getData.getStringExtra("number"));
+        showclass.setText(getData.getStringExtra("rdval"));
+
+
+    }
+
+
+    public void back(View view) {
+//        Intent intent = new Intent(getApplicationContext(),MainActivity.class);
+//        startActivity(intent);
+        finish();
+    }
+}
+
+
+
+
+

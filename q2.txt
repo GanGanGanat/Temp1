@@ -1,0 +1,84 @@
+2. Create an android application for one EditText (number) and Two Buttons (increment and decrement). Perform increment and decrement of 
+Integer number in EditText on click of the button. 
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.que2">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Que2">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
+
+
+=======================================================================
+
+package com.example.que2;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
+public class MainActivity extends AppCompatActivity {
+    EditText Number;
+    int number;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        Number = findViewById(R.id.edt1);
+        Button plus = findViewById(R.id.btnPls);
+        Button minus = findViewById(R.id.btnMin);
+
+
+        plus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                number = Integer.parseInt(Number.getText().toString());
+                number++;
+                Number.setText(Integer.toString(number));
+            }
+        });
+
+        minus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(number == 0)
+                {
+                    number = 0;
+                    Toast.makeText(MainActivity.this, "Number Already Zero", Toast.LENGTH_SHORT).show();
+                }else{
+                    number = Integer.parseInt(Number.getText().toString());
+                    number--;
+                    Number.setText(Integer.toString(number));
+                }
+
+            }
+        });
+    }
+}
+
+
+

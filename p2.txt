@@ -1,0 +1,449 @@
+2. Write an android application to – Create data table of your choice in database (MySQL database) 
+Provide insert, update, delete, search, and browse (using ListView) operations on that table. 
+
+
+====================== php file =============================
+
+
+============== Insert ===========
+
+
+<?php
+    $conn = mysqli_connect("localhost","harsh","","employee");
+
+    $empid = $_POST['t1'];
+    $empname = $_POST['t2'];
+    $empsalary = $_POST['t3'];
+    $empdesg = $_POST['t4'];
+
+    $query = "INSERT INTO EMP (id,name,salary,desg) VALUES ('$empid','$empname','$empsalary','$empdesg')";
+    $succ = mysqli_query($conn,$query);
+
+    if($succ)
+    {
+        echo "Insert Successfull";
+    }else{
+         echo "Insert not Successfull";
+    }
+?>
+
+
+
+========= Update ===========
+
+
+
+<?php
+    $conn = mysqli_connect("localhost","harsh","","employee");
+
+    $empid = $_POST['t1'];
+    $empname = $_POST['t2'];
+    $empsalary = $_POST['t3'];
+    $empdesg = $_POST['t4'];
+
+    $query = "UPDATE emp SET name='$empname',salary='$empsalary',desg='$empdesg' WHERE id='$empid'";
+    $succ = mysqli_query($conn,$query);
+
+    if($succ)
+    {
+        echo "update Successfull";
+    }else{
+         echo "update not Successfull";
+    }
+?>
+
+
+========= Delete ===========
+
+
+<?php
+    $conn = mysqli_connect("localhost","harsh","","employee");
+
+    $empid = $_POST['t1'];
+  
+    $query = "DELETE FROM  emp WHERE id = $empid";
+    $succ = mysqli_query($conn,$query);
+
+    if($succ)
+    {
+        echo "Delete Successfull";
+    }else{
+         echo "Record not Found";
+    }
+?>
+
+
+
+======= Display ===========
+
+
+
+<?php
+    header('Content-Type:application/json');
+    $data = array();
+    $conn = mysqli_connect("localhost","harsh","","employee");
+
+    if($conn)
+    {
+        $query = "SELECT * FROM EMP";
+        $succ = mysqli_query($conn,$query);
+        if(mysqli_num_rows($succ)!=0)
+        {
+            $i=0;
+            while($row=mysqli_fetch_assoc($succ))
+            {
+                $data[$i]=$row;
+                $i++;
+            }
+            print(json_encode($data));
+        }       
+    }
+?>
+
+
+
+========= Search =================
+
+
+<?php
+    header('Content-Type:application/json');
+    $data = array();
+    $conn = mysqli_connect("localhost","harsh","","employee");
+    $empid = $_POST['t1'];
+    if($conn)
+    {
+        $query = "SELECT * FROM EMP WHERE id = $empid";
+        $succ = mysqli_query($conn,$query);
+        if(mysqli_num_rows($succ)!=0)
+        {
+            $i=0;
+            while($row=mysqli_fetch_assoc($succ))
+            {
+                $data[$i]=$row;
+                $i++;
+            }
+            print(json_encode($data));
+        }       
+    }
+?>
+
+
+
+
+=========== Manifest =================
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.anew">
+<uses-permission android:name="android.permission.INTERNET"/>
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:usesCleartextTraffic="true"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.New">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
+
+
+=========== MainActivity ==============
+
+
+package com.example.anew;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.Toast;
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+
+public class MainActivity extends AppCompatActivity {
+
+    private static  final String url= "http://10.0.2.2/second_database/connection.php";
+    private static  final String urldisp= "http://10.2.10.14/second_database/display.php";
+    private static  final String urlupdate= "http://10.2.10.14/second_database/update.php";
+    private static  final String urldel= "http://10.2.10.14/second_database/delete.php";
+    private static  final String urlseh= "http://10.2.10.14/second_database/search.php";
+    EditText eid,ename,esalary,edesc;
+    Button einsert,edisplay,edelete,eupdate,esearch;
+    ListView lv;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        eid = findViewById(R.id.empid);
+        ename = findViewById(R.id.empname);
+        esalary = findViewById(R.id.empsalary);
+        edesc = findViewById(R.id.empdesc);
+        einsert = findViewById(R.id.insert);
+        edisplay = findViewById(R.id.display);
+        edelete = findViewById(R.id.delete);
+        eupdate = findViewById(R.id.update);
+        esearch = findViewById(R.id.search);
+
+        lv = findViewById(R.id.lv);
+
+        einsert.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                insertdata();
+            }
+        });
+
+        edisplay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                display();
+            }
+        });
+
+        edelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                delete();
+            }
+        });
+
+        eupdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                update();
+            }
+        });
+
+        esearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                search();
+            }
+        });
+
+
+    }
+
+    public void insertdata() {
+        final String id = eid.getText().toString();
+        final String name = ename.getText().toString();
+        final String salary1 = esalary.getText().toString();
+        final String desc = edesc.getText().toString();
+
+
+        StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                eid.setText("");
+                ename.setText("");
+                esalary.setText("");
+                edesc.setText("");
+                Toast.makeText(MainActivity.this, response.toString(), Toast.LENGTH_SHORT).show();
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(MainActivity.this, error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("t1", id);
+                params.put("t2",name);
+                params.put("t3",salary1);
+                params.put("t4",desc);
+                return  params;
+            }
+        };
+        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+        queue.add(request);
+    }
+
+    public void delete() {
+        final String id = eid.getText().toString();
+
+        StringRequest request = new StringRequest(Request.Method.POST, urldel, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                eid.setText("");
+                Toast.makeText(MainActivity.this, response.toString(), Toast.LENGTH_SHORT).show();
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(MainActivity.this, error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("t1", id);
+                return  params;
+            }
+        };
+        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+        queue.add(request);
+    }
+
+
+    public void update() {
+        final String id = eid.getText().toString();
+        final String name = ename.getText().toString();
+        final String salary1 = esalary.getText().toString();
+        final String desc = edesc.getText().toString();
+
+
+        StringRequest request = new StringRequest(Request.Method.POST, urlupdate, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Toast.makeText(MainActivity.this, response.toString(), Toast.LENGTH_SHORT).show();
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(MainActivity.this, error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("t1", id);
+                params.put("t2",name);
+                params.put("t3",salary1);
+                params.put("t4",desc);
+                return  params;
+            }
+        };
+        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+        queue.add(request);
+    }
+
+    public void search() {
+        final String id = eid.getText().toString();
+
+        StringRequest request = new StringRequest(Request.Method.POST, urlseh, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                eid.setText("");
+                Toast.makeText(MainActivity.this, response.toString(), Toast.LENGTH_SHORT).show();
+                Log.d("response"," "+response);
+                try {
+                    JSONArray jsonArray = new JSONArray(response);
+                    ArrayList<String> arrayList = new ArrayList<>();
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+                        eid.setText(jsonObject.getString("id"));
+                        ename.setText(jsonObject.getString("name"));
+                        esalary.setText(jsonObject.getString("salary"));
+                        edesc.setText(jsonObject.getString("desg"));
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(MainActivity.this, "hello", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(MainActivity.this, error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("t1", id);
+                return  params;
+            }
+        };
+        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+        queue.add(request);
+    }
+
+    public void display()
+    {
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        Response.Listener<String> listener = new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.d("response"," "+response);
+                try {
+                    JSONArray jsonArray = new JSONArray(response);
+                    ArrayList<String> arrayList = new ArrayList<>();
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+                        String record = "";
+                        record+= jsonObject.getString("id");
+                        record+="  "+ jsonObject.getString("name");
+                        record+="  "+ jsonObject.getString("salary");
+                        record+="  "+ jsonObject.getString("desg");
+                        arrayList.add(record);
+
+                    }
+                    ArrayAdapter ad = new ArrayAdapter(MainActivity.this, android.R.layout.simple_list_item_1, arrayList);
+                    lv.setAdapter(ad);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(MainActivity.this, "hello", Toast.LENGTH_SHORT).show();
+                }
+            }
+        };
+        Response.ErrorListener errorListener = new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(MainActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, urldisp,listener,errorListener);
+        requestQueue.add(stringRequest);
+    }
+
+
+}
+
+
+
+
+
