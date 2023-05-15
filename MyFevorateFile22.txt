@@ -1,0 +1,250 @@
+package com.example.ass1q4;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.TimePicker;
+import android.widget.Toast;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.TimeZone;
+
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+int y,m,d;
+int hr,min;
+    int clsid;
+    ArrayAdapter ad;
+    RadioGroup clsgrp;
+    String sname,sadd,tname,tdate,ttime,psname,noftic,cls;
+RadioButton r1,r2,r3;
+    Spinner spinner;
+    EditText datetxt,timetxt,pname,ticnum,edname,edadd;
+    String[] train_name={ "SELECT TRAIN","TAPTI GANGA","AVADHEXP","MAHAMANA"};
+SharedPreferences getsrdpf;
+SharedPreferences.Editor speditor;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        edname=findViewById(R.id.nametxt);
+        edadd=findViewById(R.id.addTxt);
+         datetxt = findViewById(R.id.datetxt);
+        timetxt = findViewById(R.id.timetxt);
+        pname=findViewById(R.id.PnameTxt);
+        ticnum=findViewById(R.id.TicText);
+        r1=findViewById(R.id.radioButton1);
+        r2=findViewById(R.id.radioButton2);
+        r3=findViewById(R.id.radioButton3);
+         clsgrp=findViewById(R.id.clsid);
+         spinner=(Spinner) findViewById(R.id.spinName);
+        spinner.setOnItemSelectedListener(MainActivity.this);
+       ad=new ArrayAdapter(this, android.R.layout.simple_spinner_item,train_name);
+        ad.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(ad);
+
+
+        getsrdback();
+
+    }
+
+
+
+    public  void DatePicker(View v){
+        Calendar c =Calendar.getInstance();
+        y=c.get(Calendar.YEAR);
+        m=c.get(Calendar.MONTH);
+        d=c.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(MainActivity.this, new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                    datetxt.setText(dayOfMonth+"/"+(month+1)+"/"+year);
+            }
+        },y,m,d);
+        datePickerDialog.show();
+    }
+    public  void TimePicker(View v){
+            Calendar c= Calendar.getInstance();
+            hr=c.get(Calendar.HOUR);
+            min=c.get(Calendar.MINUTE);
+
+        TimePickerDialog timePickerDialog = new TimePickerDialog(MainActivity.this, new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                Calendar c= Calendar.getInstance();
+                c.set(Calendar.HOUR_OF_DAY,hourOfDay);
+                c.set(Calendar.MINUTE ,minute);
+                c.setTimeZone(TimeZone.getDefault());
+                SimpleDateFormat format=new SimpleDateFormat("k:mm a");
+                String t = format.format(c.getTime());
+                timetxt.setText(t);
+            }
+        },hr,min,true);
+        timePickerDialog.show();
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id) {
+
+        Toast.makeText(getApplicationContext(), train_name[position], Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
+
+    public void onNext(View view) {
+        sname=edname.getText().toString();
+        sadd=edadd.getText().toString();
+        tdate=datetxt.getText().toString();
+        ttime=timetxt.getText().toString();
+        psname=pname.getText().toString();
+        noftic=ticnum.getText().toString();
+        tname=spinner.getSelectedItem().toString();
+        if(r1.isChecked()==true){
+            cls=r1.getText().toString();
+        }
+        else if(r2.isChecked()==true){
+            cls=r2.getText().toString();
+        }
+        else if(r3.isChecked()==true){
+            cls=r3.getText().toString();
+        }
+
+        Intent intent=new Intent(getApplicationContext(),TicketPage.class);
+        intent.putExtra("tra_mname",sname);
+        intent.putExtra("tra_add",sadd);
+        intent.putExtra("tra_name",tname);
+        intent.putExtra("tra_date",tdate);
+        intent.putExtra("tra_time",ttime);
+        intent.putExtra("tra_pname",psname);
+        intent.putExtra("tra_not",noftic);
+        intent.putExtra("tra_cls",cls);
+       startActivity(intent);
+
+
+    }
+    @Override
+    protected void onStop() {
+        setputshrp();
+        super.onStop();
+
+    }
+    public  void setputshrp(){
+getsrdpf=getSharedPreferences("train_data",MODE_PRIVATE);
+
+        sname=edname.getText().toString();
+        sadd=edadd.getText().toString();
+        tdate=datetxt.getText().toString();
+        ttime=timetxt.getText().toString();
+        psname=pname.getText().toString();
+        noftic=ticnum.getText().toString();
+        tname=spinner.getSelectedItem().toString();
+        if(r1.isChecked()==true){
+           clsid=r1.getId();
+        }
+        else if(r2.isChecked()==true){
+            clsid=r2.getId();
+        }
+        else if(r3.isChecked()==true){
+            clsid=r3.getId();
+        }
+        speditor=getsrdpf.edit();
+        speditor.putString("sr_name",sname);
+        speditor.putString("sr_add",sadd);
+        speditor.putString("sr_date",tdate);
+        speditor.putString("sr_time",ttime);
+        speditor.putString("sr_pname",psname);
+        speditor.putString("sr_notic",noftic);
+        speditor.putString("sr_tname",tname);
+        speditor.putInt("sr_cls",clsid);
+        speditor.apply();
+
+    }
+    public  void getsrdback(){
+        getsrdpf=getSharedPreferences("train_data",MODE_PRIVATE);
+        edname.setText(getsrdpf.getString("sr_name",""));
+        edadd.setText(getsrdpf.getString("sr_add",""));;
+        datetxt.setText(getsrdpf.getString("sr_date",""));;
+        timetxt.setText(getsrdpf.getString("sr_time",""));;
+      pname.setText(getsrdpf.getString("sr_pname",""));
+     ticnum.setText(getsrdpf.getString("sr_notic",""));
+     String tnm = getsrdpf.getString("sr_tname","");
+     int clstn=getsrdpf.getInt("sr_cls",0);
+      int pos=ad.getPosition(tnm);
+      spinner.setSelection(pos);
+       clsgrp.check(clstn);
+    }
+
+}
+
+##################################################
+_________________________________
+
+package com.example.ass1q4;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
+
+public class TicketPage extends AppCompatActivity {
+TextView t1,t2,t3,t4,t5,t6,t7,t8;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_ticket_page);
+        t1=findViewById(R.id.tname);
+        t2=findViewById(R.id.tdate);
+        t3=findViewById(R.id.ttime);
+        t4=findViewById(R.id.tpname);
+        t5=findViewById(R.id.ttno);
+        t6=findViewById(R.id.tcls);
+        t7=findViewById(R.id.myname);
+        t8=findViewById(R.id.myadd);
+        /*intent.putExtra("tra_name",tname);
+        intent.putExtra("tra_date",tdate);
+        intent.putExtra("tra_time",ttime);
+        intent.putExtra("tra_pname",psname);
+        intent.putExtra("tra_not",noftic);
+        intent.putExtra("tra_cls",cls);*/
+        Intent intent=getIntent();
+        t1.setText(intent.getStringExtra("tra_name"));
+        t2.setText(intent.getStringExtra("tra_date"));
+        t3.setText(intent.getStringExtra("tra_time"));
+        t4.setText(intent.getStringExtra("tra_pname"));
+        t5.setText(intent.getStringExtra("tra_not"));
+        t6.setText(intent.getStringExtra("tra_cls"));
+        t7.setText(intent.getStringExtra("tra_mname"));
+        t8.setText(intent.getStringExtra("tra_add"));
+
+
+
+    }
+
+    public void OnOk(View view) {
+
+        Intent intent=new Intent(getApplicationContext(),MainActivity.class);
+        startActivity(intent);
+    }
+}
